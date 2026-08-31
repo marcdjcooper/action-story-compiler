@@ -219,7 +219,7 @@
   }
 
   function isStructuredAsmSeed(seed) {
-    return !!(seed && seed.source === "ASM v2.0" && seed.form && seed.world && seed.protagonist && seed.objective && seed.opposition && seed.means && seed.pressure && seed.counter && seed.solution);
+    return !!(seed && /^ASM v2\.(?:0|5)$/.test(seed.source) && seed.form && seed.world && seed.protagonist && seed.objective && seed.opposition && seed.means && seed.pressure && seed.counter && seed.solution);
   }
 
   function buildActionContract(premise, selection, asmSeed) {
@@ -247,7 +247,7 @@
       literalStakes,
       world,
       initialMeans: means,
-      authoredSource: structured ? "ASM v2.0 structured seed" : "Premise parser",
+      authoredSource: structured ? `${asmSeed.source} structured seed` : "Premise parser",
       dominantForm: profile ? profile.label : "Unclassified",
       secondaryForm: selection.secondary ? selection.secondary.label : null
     };
@@ -273,7 +273,7 @@
       primaryStrategy: structured ? asmSeed.oppositionSetup : profile.strategy,
       stableCapabilityRule: immunity,
       responseRule: "Respond causally to each hero tactic without introducing a new capability.",
-      authoredCounter: structured ? { strength: asmSeed.counter.strength, source: "ASM v2.0 opposition counter" } : null,
+      authoredCounter: structured ? { strength: asmSeed.counter.strength, source: `${asmSeed.source} opposition counter` } : null,
       tacticalImbalance
     };
   }
@@ -439,7 +439,8 @@
       state.villainSetPreciseLimit = hasPreciseLimit(lower) && villainMarker && weaponMarker;
       state.expiryConsequence = LETHAL_PATTERN.test(lower);
       state.choiceCompression = hasPreciseLimit(lower);
-      state.clockIntegrity = cycles.every((cycle) => /clock|timer|time|retry|timed|interval|expiry/i.test(`${cycle.oppositionResponse} ${cycle.consequence} ${cycle.changedState.factEstablished}`));
+      const progressionText = cycles.map((cycle) => `${cycle.oppositionResponse} ${cycle.consequence} ${cycle.changedState.factEstablished}`).join(" ");
+      state.clockIntegrity = hasPreciseLimit(lower) && !/\b(?:clock|timer|countdown)\b[^.]{0,60}\b(?:reset|restart(?:ed)?|extend(?:ed)?|extra time|more time)\b/i.test(progressionText);
     }
     if (profile.id === "vigilante") {
       state.lawfulAttempt = /\b(?:law|legal|authority|badge|police|official)\b/.test(lower);

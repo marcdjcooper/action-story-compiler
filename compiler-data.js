@@ -263,7 +263,7 @@
   };
 
   const ASM_PROVENANCE = {
-    note: "Physical construction patterns are adapted from ASM v2.0's authored counter and matched-solution discoveries.",
+    note: "Physical construction patterns are adapted from ASM v2.5's authored counter and matched-solution discoveries.",
     seeds: ["port_ferry_hold", "rail_switch", "derelict_bio", "citadel_founding"]
   };
 
