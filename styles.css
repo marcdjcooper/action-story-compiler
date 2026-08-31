@@ -130,8 +130,9 @@ textarea:focus { outline: 3px solid rgba(36,85,214,.2); border-color: var(--blue
 .asm-button:disabled { cursor: wait; opacity: .65; }
 .asm-button span { margin-left: .5rem; }
 .asm-engine { position: absolute; width: 1px; height: 1px; border: 0; opacity: 0; pointer-events: none; }
-.secondary-button { margin-top: 1.2rem; color: var(--ink); background: transparent; }
+.secondary-button { color: var(--ink); background: transparent; }
 .secondary-button:hover { color: #fff; background: var(--ink); }
+.export-actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: 1.2rem; }
 .input-message { min-height: 1.25rem; margin-top: .7rem; color: var(--red-dark); font-weight: 700; font-size: .85rem; }
 .asm-seed-panel { margin-top: 1rem; padding: 1rem; background: #eeece5; border: 1px solid var(--line); }
 .asm-seed-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; }
@@ -248,7 +249,8 @@ footer { padding: 2rem 5vw; color: #aeb4b9; background: var(--ink); text-align: 
   .cycle { grid-template-columns: 42px 1fr; }
   .examples { order: 2; }
   .primary-actions { flex-direction: column; }
-  .compile-button, .asm-button { width: 100%; }
+  .compile-button, .asm-button, .export-actions .secondary-button { width: 100%; }
+  .export-actions { flex-direction: column; }
   .asm-seed-heading { align-items: flex-start; flex-direction: column; }
   .asm-seed-fields { grid-template-columns: 1fr; }
 }

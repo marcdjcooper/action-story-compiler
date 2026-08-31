@@ -158,7 +158,11 @@
         </div>
         <div id="earliest-fault" class="earliest-fault"></div>
         <div id="validation-checks" class="validation-checks"></div>
-        <button id="copy-output" class="secondary-button">Copy compilation as JSON</button>
+        <div class="export-actions" aria-label="Compilation export options">
+          <button id="copy-output" class="secondary-button">Copy compilation as JSON</button>
+          <button id="export-markdown" class="secondary-button">Download .md</button>
+          <button id="export-pdf" class="secondary-button">Download .pdf</button>
+        </div>
       </section>
     </div>
   </main>
@@ -169,6 +173,7 @@
 
   <script src="compiler-data.js"></script>
   <script src="compiler.js"></script>
+  <script src="compiler-export.js"></script>
   <script src="app.js"></script>
 </body>
 </html>

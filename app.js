@@ -2,6 +2,7 @@
   "use strict";
 
   const compiler = window.ActionCompiler;
+  const exporter = window.ActionCompilerExport;
   const premiseInput = document.getElementById("premise");
   const results = document.getElementById("results");
   const emptyState = document.getElementById("empty-state");
@@ -206,6 +207,24 @@
     results.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
+  function downloadCompilation(blob, extension) {
+    if (!latestCompilation) return;
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.href = url;
+    link.download = `${exporter.filenameBase(latestCompilation)}.${extension}`;
+    document.body.append(link);
+    link.click();
+    link.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+
+  function showExportFeedback(button, message) {
+    const original = button.textContent;
+    button.textContent = message;
+    window.setTimeout(() => { button.textContent = original; }, 1500);
+  }
+
   function postAsmRollRequest() {
     pendingAsmRoll = false;
     asmButton.disabled = true;
@@ -331,6 +350,20 @@
     } catch (error) {
       button.textContent = "Copy unavailable in this browser";
     }
+  });
+  document.getElementById("export-markdown").addEventListener("click", () => {
+    if (!latestCompilation) return;
+    const button = document.getElementById("export-markdown");
+    const markdown = exporter.buildMarkdown(latestCompilation);
+    downloadCompilation(new Blob([markdown], { type: "text/markdown;charset=utf-8" }), "md");
+    showExportFeedback(button, "Downloaded .md");
+  });
+  document.getElementById("export-pdf").addEventListener("click", () => {
+    if (!latestCompilation) return;
+    const button = document.getElementById("export-pdf");
+    const pdf = exporter.buildPdfBytes(latestCompilation);
+    downloadCompilation(new Blob([pdf], { type: "application/pdf" }), "pdf");
+    showExportFeedback(button, "Downloaded .pdf");
   });
 
   premiseInput.value = compiler.EXAMPLES.monster;
