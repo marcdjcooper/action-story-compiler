@@ -1,0 +1,7 @@
+# Local source materials and development-only files are not published.
+.DS_Store
+Action_Compiler_Codex_Start_Prompt.md
+Action_Compiler_Pre_Codex_Build_Checkpoint.md
+_OceanofPDF.com_Action_-_Robert_McKee_Bassim_El-Wakil.pdf
+tests/
+tmp/

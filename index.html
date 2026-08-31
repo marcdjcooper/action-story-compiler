@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="A local deterministic compiler for causal Action story structure.">
+  <title>Action Compiler</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="masthead">
+    <div>
+      <p class="eyebrow">LOCAL PROTOTYPE · NO AI API</p>
+      <h1>Action Compiler</h1>
+      <p class="lede">Enter a viable Life/Death premise. The Compiler exposes the causal machinery that makes the Action story work.</p>
+    </div>
+    <div class="system-mark" aria-label="Compiler architecture">
+      <span>5</span> systems
+      <span>6</span> records
+      <span>1</span> ledger
+    </div>
+  </header>
+
+  <main>
+    <section class="compiler-input" aria-labelledby="premise-heading">
+      <div class="section-heading">
+        <div>
+          <p class="step">INPUT</p>
+          <h2 id="premise-heading">Action premise</h2>
+        </div>
+        <p class="input-hint">Include a hero, an exact objective, literal lethal stakes, and the opposition causing them.</p>
+      </div>
+      <label class="sr-only" for="premise">Action premise</label>
+      <textarea id="premise" rows="5" spellcheck="true"></textarea>
+      <div class="controls">
+        <div class="examples" aria-label="Example premises">
+          <span>Load example:</span>
+          <button class="text-button" data-example="monster">Monster</button>
+          <button class="text-button" data-example="unraveling">Unraveling</button>
+          <button class="text-button" data-example="neighbor">Deadline / Holdout</button>
+          <button class="text-button" data-example="asm">ASM seed</button>
+        </div>
+        <div class="primary-actions">
+          <button id="asm-roll" class="asm-button" disabled>Roll ASM premise <span aria-hidden="true">↻</span></button>
+          <button id="compile" class="compile-button">Compile premise <span aria-hidden="true">→</span></button>
+        </div>
+      </div>
+      <div id="input-message" class="input-message" role="status" aria-live="polite"></div>
+      <section id="asm-seed-panel" class="asm-seed-panel" aria-labelledby="asm-seed-heading" hidden>
+        <div class="asm-seed-heading">
+          <div>
+            <p class="step">CURRENT ASM SEED</p>
+            <h3 id="asm-seed-heading">Keep what works. Reroll the rest.</h3>
+          </div>
+          <button id="asm-unlock-all" class="text-button">Unlock all</button>
+        </div>
+        <div id="asm-seed-fields" class="asm-seed-fields"></div>
+        <p class="asm-seed-note">Locked components stay fixed on the next ASM roll. Compilation remains a separate action.</p>
+      </section>
+      <iframe id="asm-engine" class="asm-engine" src="Action_Story_Machine_v2.0.html" title="Embedded local ASM seed engine" aria-hidden="true" tabindex="-1"></iframe>
+    </section>
+
+    <div id="empty-state" class="empty-state">
+      <p class="eyebrow">READY</p>
+      <h2>The causal chain will appear here.</h2>
+      <p>Compile a premise to inspect form selection, six runtime records, every ledger mutation, the endgame, and the earliest causal fault.</p>
+    </div>
+
+    <div id="results" class="results" hidden>
+      <section class="form-strip" aria-labelledby="form-heading">
+        <div>
+          <p class="step">FORM SELECTOR</p>
+          <h2 id="form-heading">Candidate forms</h2>
+          <div id="candidate-forms" class="candidate-forms"></div>
+        </div>
+        <div class="dominant-panel">
+          <p>Dominant form</p>
+          <strong id="dominant-form"></strong>
+          <span id="dominance-reason"></span>
+        </div>
+      </section>
+
+      <section class="record-grid" aria-label="Compiler records">
+        <article class="record-card" id="contract-card">
+          <div class="record-number">01</div>
+          <p class="step">ACTION CONTRACT</p>
+          <h2>The promise</h2>
+          <dl id="action-contract" class="record-list"></dl>
+        </article>
+
+        <article class="record-card" id="opposition-card">
+          <div class="record-number">02</div>
+          <p class="step">OPPOSITION PROGRAM</p>
+          <h2>The lethal program</h2>
+          <dl id="opposition-program" class="record-list"></dl>
+        </article>
+      </section>
+
+      <section class="imbalance" aria-labelledby="imbalance-heading">
+        <div>
+          <p class="step">SPECIFIC TACTICAL IMBALANCE</p>
+          <h2 id="imbalance-heading">Why the obvious response fails</h2>
+        </div>
+        <div class="imbalance-equation">
+          <div><span>Hero’s primary tactic</span><strong id="hero-tactic"></strong></div>
+          <b aria-hidden="true">×</b>
+          <div><span>Opposition immunity</span><strong id="opposition-immunity"></strong></div>
+          <b aria-hidden="true">+</b>
+          <div><span>Hero’s missing defense</span><strong id="hero-vulnerability"></strong></div>
+        </div>
+        <p id="imbalance-statement" class="imbalance-statement"></p>
+      </section>
+
+      <section aria-labelledby="cycles-heading">
+        <div class="section-heading">
+          <div>
+            <p class="step">RECORD 04 · PROGRESSION ENGINE</p>
+            <h2 id="cycles-heading">Causal progression cycles</h2>
+          </div>
+          <p id="cycle-count" class="count-pill"></p>
+        </div>
+        <div id="cycles" class="cycles"></div>
+      </section>
+
+      <section class="ledger-section" aria-labelledby="ledger-heading">
+        <div class="section-heading">
+          <div>
+            <p class="step">RECORD 03 · SINGLE SOURCE OF CAUSAL TRUTH</p>
+            <h2 id="ledger-heading">Causal Ledger</h2>
+          </div>
+          <p class="input-hint">Append-only state mutations consulted by progression and endgame.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Stage</th><th>Hero power</th><th>Opposition</th><th>Victim risk</th><th>State change / fact established</th></tr></thead>
+            <tbody id="ledger"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section aria-labelledby="endgame-heading">
+        <div class="section-heading">
+          <div>
+            <p class="step">RECORD 05 · ENDGAME PLAN</p>
+            <h2 id="endgame-heading">Crisis to exact closure</h2>
+          </div>
+        </div>
+        <div id="endgame" class="endgame-grid"></div>
+      </section>
+
+      <section class="validation-section" aria-labelledby="validation-heading">
+        <div class="validation-header">
+          <div>
+            <p class="step">RECORD 06 · VALIDATOR</p>
+            <h2 id="validation-heading">Validation Report</h2>
+          </div>
+          <div id="validation-status" class="validation-status"></div>
+        </div>
+        <div id="earliest-fault" class="earliest-fault"></div>
+        <div id="validation-checks" class="validation-checks"></div>
+        <button id="copy-output" class="secondary-button">Copy compilation as JSON</button>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <p>Deterministic local prototype · Canonical theory from <em>Action</em> · Authored construction patterns adapted from ASM v2.0</p>
+  </footer>
+
+  <script src="compiler-data.js"></script>
+  <script src="compiler.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
