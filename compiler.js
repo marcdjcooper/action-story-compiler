@@ -219,7 +219,7 @@
   }
 
   function isStructuredAsmSeed(seed) {
-    return !!(seed && /^ASM v2\.(?:0|5)$/.test(seed.source) && seed.form && seed.world && seed.protagonist && seed.objective && seed.opposition && seed.means && seed.pressure && seed.counter && seed.solution);
+    return !!(seed && /^(?:ASM v2\.(?:0|5)|ASM v3\.0\.3)$/.test(seed.source) && seed.form && seed.world && seed.protagonist && seed.objective && seed.opposition && seed.means && seed.pressure && seed.counter && seed.solution);
   }
 
   function buildActionContract(premise, selection, asmSeed) {
@@ -232,7 +232,18 @@
     const world = structured ? asmSeed.world.label : extractWorld(premise);
     const means = structured ? asmSeed.means.label : inferMeans(hero);
     const literalStakes = extractStakes(premise);
-    const viable = hero !== "Unspecified hero" && exactObjective !== "Unspecified exact objective" && LETHAL_PATTERN.test(premise) && !!profile;
+    const viable = hero !== "Unspecified hero" && exactObjective !== "Unspecified exact objective" && LETHAL_PATTERN.test(premise) && !!profile && asmSeed?.blockbusterSpine !== "competition";
+    const blockbusterContext = structured && asmSeed.blockbusterDNA && asmSeed.blockbusterProfile ? {
+      tradition: asmSeed.blockbusterProfile.label,
+      profileId: asmSeed.blockbusterProfile.id,
+      motifs: asmSeed.blockbusterDNA.motifs,
+      heroFantasy: asmSeed.blockbusterDNA.heroFantasy,
+      dynamic: asmSeed.blockbusterDNA.dynamic,
+      engine: asmSeed.blockbusterDNA.engine,
+      arc: asmSeed.blockbusterDNA.arc,
+      setpiece: asmSeed.blockbusterDNA.setpiece,
+      sequence: asmSeed.blockbusterDNA.sequence
+    } : null;
     return {
       recordType: "Action Contract",
       premise,
@@ -248,6 +259,7 @@
       world,
       initialMeans: means,
       authoredSource: structured ? `${asmSeed.source} structured seed` : "Premise parser",
+      blockbusterContext,
       dominantForm: profile ? profile.label : "Unclassified",
       secondaryForm: selection.secondary ? selection.secondary.label : null
     };
@@ -532,6 +544,10 @@
       sourceBoundary: ASM_PROVENANCE.note,
       sourceSeed: asmSeed ? {
         source: asmSeed.source,
+        mode: asmSeed.mode || "action",
+        blockbusterSpine: asmSeed.blockbusterSpine || "action",
+        blockbusterProfile: asmSeed.blockbusterProfile || null,
+        blockbusterDNA: asmSeed.blockbusterDNA || null,
         fingerprint: asmSeed.fingerprint,
         formId: asmSeed.form.id,
         worldId: asmSeed.world.id,

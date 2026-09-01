@@ -41,6 +41,11 @@
           <button class="text-button" data-example="asm">ASM seed</button>
         </div>
         <div class="primary-actions">
+          <div class="asm-mode-switch" aria-label="ASM story mode">
+            <span>ASM mode</span>
+            <button id="asm-mode-action" class="active" aria-pressed="true">Action</button>
+            <button id="asm-mode-blockbuster" aria-pressed="false">Blockbuster</button>
+          </div>
           <button id="asm-roll" class="asm-button" disabled>Roll ASM premise <span aria-hidden="true">↻</span></button>
           <button id="compile" class="compile-button">Compile premise <span aria-hidden="true">→</span></button>
         </div>
@@ -54,10 +59,11 @@
           </div>
           <button id="asm-unlock-all" class="text-button">Unlock all</button>
         </div>
+        <div id="asm-blockbuster-context" class="asm-blockbuster-context" hidden></div>
         <div id="asm-seed-fields" class="asm-seed-fields"></div>
-        <p class="asm-seed-note">Locked components stay fixed on the next ASM roll. Compilation remains a separate action.</p>
+        <p class="asm-seed-note">Locked components stay fixed on the next ASM roll. Action-spine Blockbuster rolls can compile; competition-spine rolls remain development material until adapted into a viable Action premise.</p>
       </section>
-      <iframe id="asm-engine" class="asm-engine" src="Action_Story_Machine_v2.5.html" title="Embedded local ASM seed engine" aria-hidden="true" tabindex="-1"></iframe>
+      <iframe id="asm-engine" class="asm-engine" src="Action_Story_Machine_v3.0.3.html" title="Embedded local ASM seed engine" aria-hidden="true" tabindex="-1"></iframe>
     </section>
 
     <div id="empty-state" class="empty-state">
@@ -168,7 +174,7 @@
   </main>
 
   <footer>
-    <p>Deterministic local prototype · Canonical theory from <em>Action</em> · Authored construction patterns adapted from ASM v2.5</p>
+    <p>Deterministic local prototype · Canonical theory from <em>Action</em> · Authored construction and Blockbuster movie machines from ASM v3.0.3</p>
   </footer>
 
   <script src="compiler-data.js"></script>

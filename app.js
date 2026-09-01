@@ -11,6 +11,9 @@
   const asmButton = document.getElementById("asm-roll");
   const asmSeedPanel = document.getElementById("asm-seed-panel");
   const asmSeedFields = document.getElementById("asm-seed-fields");
+  const asmBlockbusterContext = document.getElementById("asm-blockbuster-context");
+  const asmModeAction = document.getElementById("asm-mode-action");
+  const asmModeBlockbuster = document.getElementById("asm-mode-blockbuster");
   const ASM_KEYS = ["form", "world", "protagonist", "objective", "opposition", "means", "pressure"];
   const ASM_LABELS = { form: "Form", world: "World", protagonist: "Protagonist", objective: "Objective", opposition: "Opposition", means: "Means", pressure: "Pressure" };
   let latestCompilation = null;
@@ -20,6 +23,7 @@
   let asmReady = false;
   let pendingAsmRoll = false;
   let asmRollTimeout = null;
+  let asmMode = "action";
 
   function clear(element) {
     while (element.firstChild) element.removeChild(element.firstChild);
@@ -61,7 +65,7 @@
   function renderRecords(compilation) {
     const contract = compilation.actionContract;
     const program = compilation.oppositionProgram;
-    renderDefinitionList("action-contract", [
+    const contractEntries = [
       ["Hero", contract.hero],
       ["Victim", contract.victim],
       ["Opposition", contract.opposition],
@@ -71,7 +75,21 @@
       ["Initial means", contract.initialMeans],
       ["Construction source", contract.authoredSource],
       ["Form constraint", contract.secondaryForm ? `${contract.dominantForm} + ${contract.secondaryForm}` : contract.dominantForm]
-    ]);
+    ];
+    if (contract.blockbusterContext) {
+      const blockbuster = contract.blockbusterContext;
+      contractEntries.push(
+        ["Blockbuster tradition", blockbuster.tradition],
+        ["Blockbuster motifs", blockbuster.motifs.join(" + ")],
+        ["Hero fantasy", blockbuster.heroFantasy],
+        ["Core / team dynamic", blockbuster.dynamic],
+        ["Feature engine", blockbuster.engine],
+        ["Hero arc", blockbuster.arc],
+        ["Setpiece promise", blockbuster.setpiece],
+        ["Sequence contribution", blockbuster.sequence.engineContribution]
+      );
+    }
+    renderDefinitionList("action-contract", contractEntries);
     renderDefinitionList("opposition-program", [
       ["Identity", program.identity],
       ["Action role", program.role],
@@ -193,6 +211,10 @@
       premiseInput.focus();
       return;
     }
+    if (currentAsmSeed && premise === currentAsmPremise && currentAsmSeed.blockbusterSpine === "competition") {
+      inputMessage.textContent = "This is a competition-led Blockbuster seed, not a literal Life/Death Action premise. Reroll Blockbuster DNA, or edit it into a viable Action premise before compiling.";
+      return;
+    }
     inputMessage.textContent = "";
     const asmSeed = currentAsmSeed && premise === currentAsmPremise ? currentAsmSeed : null;
     latestCompilation = compiler.compilePremise(premise, { asmSeed });
@@ -229,8 +251,8 @@
     pendingAsmRoll = false;
     asmButton.disabled = true;
     asmButton.textContent = "Rolling ASM premise…";
-    inputMessage.textContent = "Rolling through ASM's local authored banks…";
-    asmFrame.contentWindow.postMessage({ type: "action-compiler:roll-asm", locks: asmLocks }, "*");
+    inputMessage.textContent = `Rolling through ASM's local authored ${asmMode === "blockbuster" ? "Blockbuster movie machines" : "Action banks"}…`;
+    asmFrame.contentWindow.postMessage({ type: "action-compiler:roll-asm", locks: asmLocks, mode: asmMode }, "*");
     window.clearTimeout(asmRollTimeout);
     asmRollTimeout = window.setTimeout(() => {
       asmButton.disabled = false;
@@ -254,8 +276,37 @@
     return seed[key] && seed[key].label ? seed[key].label : "Not set";
   }
 
+  function renderBlockbusterContext(seed) {
+    clear(asmBlockbusterContext);
+    if (!seed.blockbusterDNA || !seed.blockbusterProfile) {
+      asmBlockbusterContext.hidden = true;
+      return;
+    }
+    const dna = seed.blockbusterDNA;
+    asmBlockbusterContext.append(element("p", "", "FEATURE-LEVEL BLOCKBUSTER MOVIE MACHINE"));
+    asmBlockbusterContext.append(element("h4", "", seed.blockbusterProfile.label));
+    const grid = element("div", "asm-blockbuster-grid");
+    [
+      ["Motifs", dna.motifs.join(" + ")],
+      ["Hero fantasy", dna.heroFantasy],
+      ["Core / team dynamic", dna.dynamic],
+      ["Feature engine", dna.engine],
+      ["Hero arc", dna.arc],
+      ["Setpiece promise", dna.setpiece],
+      ["This sequence advances", dna.sequence.engineContribution]
+    ].forEach(([label, value]) => {
+      const item = element("div", "asm-blockbuster-item");
+      item.append(element("span", "", label));
+      item.append(element("strong", "", value));
+      grid.append(item);
+    });
+    asmBlockbusterContext.append(grid);
+    asmBlockbusterContext.hidden = false;
+  }
+
   function renderAsmSeed(seed) {
     clear(asmSeedFields);
+    renderBlockbusterContext(seed);
     ASM_KEYS.forEach((key) => {
       const button = element("button", "asm-seed-field");
       button.type = "button";
@@ -279,10 +330,24 @@
     currentAsmPremise = null;
     asmLocks = Object.fromEntries(ASM_KEYS.map((key) => [key, false]));
     asmSeedPanel.hidden = true;
+    clear(asmBlockbusterContext);
+    asmBlockbusterContext.hidden = true;
+  }
+
+  function setAsmMode(mode) {
+    asmMode = mode === "blockbuster" ? "blockbuster" : "action";
+    asmModeAction.classList.toggle("active", asmMode === "action");
+    asmModeBlockbuster.classList.toggle("active", asmMode === "blockbuster");
+    asmModeAction.setAttribute("aria-pressed", String(asmMode === "action"));
+    asmModeBlockbuster.setAttribute("aria-pressed", String(asmMode === "blockbuster"));
+    clearAsmSeed();
+    inputMessage.textContent = `${asmMode === "blockbuster" ? "Blockbuster" : "Action"} ASM mode selected. Press Roll ASM premise when ready.`;
   }
 
   document.getElementById("compile").addEventListener("click", compile);
   asmButton.addEventListener("click", requestAsmRoll);
+  asmModeAction.addEventListener("click", () => setAsmMode("action"));
+  asmModeBlockbuster.addEventListener("click", () => setAsmMode("blockbuster"));
   asmFrame.addEventListener("load", () => {
     asmReady = true;
     asmButton.disabled = false;
@@ -309,6 +374,11 @@
     asmButton.textContent = "Roll ASM premise ↻";
     currentAsmSeed = event.data.seed;
     currentAsmPremise = event.data.premise;
+    asmMode = event.data.seed.mode === "blockbuster" ? "blockbuster" : "action";
+    asmModeAction.classList.toggle("active", asmMode === "action");
+    asmModeBlockbuster.classList.toggle("active", asmMode === "blockbuster");
+    asmModeAction.setAttribute("aria-pressed", String(asmMode === "action"));
+    asmModeBlockbuster.setAttribute("aria-pressed", String(asmMode === "blockbuster"));
     premiseInput.value = currentAsmPremise;
     ASM_KEYS.forEach((key) => { asmLocks[key] = !!event.data.seed.locks[key]; });
     renderAsmSeed(currentAsmSeed);
@@ -316,7 +386,9 @@
     results.hidden = true;
     emptyState.hidden = false;
     const seed = event.data.seed;
-    inputMessage.textContent = `ASM seed loaded: ${seed.form.label} · ${seed.world.label} · ${seed.protagonist.label}. Lock any components you want to keep, then reroll or compile when ready.`;
+    const blockbusterLabel = seed.blockbusterProfile ? ` · ${seed.blockbusterProfile.label}` : "";
+    const compileNote = seed.blockbusterSpine === "competition" ? " This competition-led roll is development material; reroll or adapt it before Action compilation." : " Lock any components you want to keep, then reroll or compile when ready.";
+    inputMessage.textContent = `ASM seed loaded: ${seed.form.label} · ${seed.world.label} · ${seed.protagonist.label}${blockbusterLabel}.${compileNote}`;
     premiseInput.focus();
   });
   asmFrame.contentWindow.postMessage({ type: "action-compiler:ping-asm" }, "*");

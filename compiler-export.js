@@ -57,6 +57,19 @@
       lines.push(`- **${markdownValue(candidate.label)}:** ${markdownValue(evidenceText(candidate) || "Matched discriminator")}`);
     });
 
+    if (contract.blockbusterContext) {
+      const blockbuster = contract.blockbusterContext;
+      lines.push("", "## Feature-level Blockbuster Movie Machine", "");
+      detail(lines, "Tradition", blockbuster.tradition);
+      detail(lines, "Motifs", blockbuster.motifs.join(" + "));
+      detail(lines, "Hero fantasy", blockbuster.heroFantasy);
+      detail(lines, "Core / team dynamic", blockbuster.dynamic);
+      detail(lines, "Feature engine", blockbuster.engine);
+      detail(lines, "Hero arc", blockbuster.arc);
+      detail(lines, "Setpiece promise", blockbuster.setpiece);
+      detail(lines, "Sequence contribution", blockbuster.sequence.engineContribution);
+    }
+
     lines.push("", "## Action Contract", "");
     detail(lines, "Hero", contract.hero);
     detail(lines, "Hero function", contract.heroFunction);
