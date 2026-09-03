@@ -124,9 +124,14 @@
     return left.sourceOrder - right.sourceOrder;
   }
 
-  function selectDominant(candidates) {
+  function selectDominant(candidates, authoredFormId = null) {
     if (!candidates.length) return { dominant: null, secondary: null, reason: "No Action-form discriminator was found." };
     const ordered = [...candidates].sort(compareByDominance);
+    // A structured seed may break an evidence tie, never override stronger evidence.
+    const authoredIndex = ordered.findIndex((candidate) => candidate.id === authoredFormId && !candidate.fallback && candidate.evidence.role.length > 0 &&
+      ["role", "imbalance", "state", "closure"].every((key) => candidate.evidence[key].length === ordered[0].evidence[key].length));
+    const authoredTie = authoredIndex > 0;
+    if (authoredTie) ordered.unshift(ordered.splice(authoredIndex, 1)[0]);
     const dominant = ordered[0];
     const secondary = ordered[1] && ordered[1].evidence.role.length > 0 ? ordered[1] : null;
     let decidingKey = "closure";
@@ -142,7 +147,7 @@
     return {
       dominant,
       secondary,
-      reason: `${dominant.label} ${reasonMap[decidingKey]}. Removing its ${dominant.identity} mechanism collapses the causal spine.`
+      reason: `${dominant.label} ${reasonMap[decidingKey]}. Removing its ${dominant.identity} mechanism collapses the causal spine.${authoredTie ? " The structured ASM form resolves an equal-evidence tie." : ""}`
     };
   }
 
@@ -219,7 +224,7 @@
   }
 
   function isStructuredAsmSeed(seed) {
-    return !!(seed && /^(?:ASM v2\.(?:0|5)|ASM v3\.0\.3)$/.test(seed.source) && seed.form && seed.world && seed.protagonist && seed.objective && seed.opposition && seed.means && seed.pressure && seed.counter && seed.solution);
+    return !!(seed && /^(?:ASM v2\.(?:0|5)|ASM v3\.0\.[34])$/.test(seed.source) && seed.form && seed.world && seed.protagonist && seed.objective && seed.opposition && seed.means && seed.pressure && seed.counter && seed.solution);
   }
 
   function buildActionContract(premise, selection, asmSeed) {
@@ -491,6 +496,7 @@
       check("life-death", "Literal Life / Death", "ACTION CONTRACT", "bad input/content", LETHAL_PATTERN.test(contract.literalStakes), "The stakes must state literal death, extinction, or equivalent loss of life."),
       check("cast", "Hero / Villain / Victim functions", "ACTION CONTRACT", "bad input/content", contract.hero !== "Unspecified hero" && contract.victim && contract.opposition !== "unspecified opposition", "All three Action functions must be constructible, even if roles merge."),
       check("form", "Dominant form discriminator", "FORM SELECTOR", "wrong form classification", !!compilation.formSelection.dominant && !compilation.formSelection.dominant.fallback, "The dominant form must follow a canonical family discriminator."),
+      check("asm-form", "ASM / LAC form consistency", "FORM SELECTOR", "wrong form classification", !compilation.sourceSeed || compilation.sourceSeed.formId === compilation.formSelection.dominant?.id, compilation.sourceSeed ? `The authored ASM form (${compilation.sourceSeed.formId}) must agree with the evidence-supported LAC form (${compilation.formSelection.dominant?.id}); resolve the disagreement before progression.` : "No structured ASM seed attached; form selection follows the premise evidence."),
       check("opposition-causality", "Opposition causality", "OPPOSITION PROGRAM", "causal progression failure", oppositionProgram.primaryStrategy && cycles.every((cycle) => cycle.oppositionResponse), "Opposition must cause the lethal problem and respond to every tactic."),
       check("tactical-imbalance", "Specific Tactical Imbalance", "OPPOSITION PROGRAM", "weak authored counter", oppositionProgram.tacticalImbalance.heroPrimaryTactic && oppositionProgram.tacticalImbalance.oppositionImmunity && oppositionProgram.tacticalImbalance.heroMissingDefense, "Immunity and missing defense must be specific."),
       check("progression", "Progression, not repetition", "PROGRESSION CYCLE 1", "causal progression failure", cycles.length >= 3 && new Set(tacticFamilies).size === tacticFamilies.length, "Each cycle needs a genuinely different tactic family."),
@@ -530,7 +536,7 @@
     const premise = normalize(rawPremise);
     const asmSeed = isStructuredAsmSeed(options.asmSeed) ? options.asmSeed : null;
     const candidates = candidateForms(premise);
-    const selection = selectDominant(candidates);
+    const selection = selectDominant(candidates, asmSeed?.form.id);
     const fallbackProfile = PROFILE_BY_ID.savior;
     const profile = selection.dominant ? PROFILE_BY_ID[selection.dominant.id] : fallbackProfile;
     const actionContract = buildActionContract(premise, selection, asmSeed);
@@ -538,7 +544,7 @@
     const progression = buildProgression(actionContract, oppositionProgram, profile, asmSeed);
     const endgamePlan = buildEndgame(actionContract, oppositionProgram, profile, progression);
     const compilation = {
-      compilerVersion: "0.1.0",
+      compilerVersion: "0.1.1",
       deterministic: true,
       externalInference: false,
       sourceBoundary: ASM_PROVENANCE.note,
@@ -582,6 +588,6 @@
     selectDominant,
     FORM_PROFILES,
     EXAMPLES,
-    version: "0.1.0"
+    version: "0.1.1"
   };
 });
